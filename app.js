@@ -27,13 +27,13 @@ let redisClient = null;
     console.log(error);
   });
   redisClient.on('connect', () => {
-    console.log('Redis connected!');
+    console.log('Redis connected');
   });
 
   await redisClient.connect();
 })();
 
-async function connect() {
+async function mongodbConnect() {
   try {
     await mongoose.connect(connectionString, {
       useNewUrlParser: true,
@@ -45,7 +45,7 @@ async function connect() {
   }
 }
 
-connect();
+mongodbConnect();
 
 app.listen(port, () => console.log(`Listening on Port: ${port}`));
 
@@ -61,7 +61,7 @@ function idTypeSelector(id) {
 }
 
 function generateToken(user) {
-  return jwt.sign({ user }, process.env.ACCESS_TOKEN, { expiresIn: '10m' });
+  return jwt.sign({ user }, process.env.ACCESS_TOKEN, { expiresIn: '100m' });
 }
 
 app.post('/signup', async (req, res) => {
@@ -102,7 +102,7 @@ async function authFunction(req, res, next) {
   const inDenyList = await redisClient.get(`bl_${token}`);
   if (inDenyList) {
     return res.status(401).send({
-      message: 'JWT Rejected',
+      message: 'Token Rejected',
     });
   }
 
@@ -134,21 +134,40 @@ app.get('/latency', async (req, res) => {
   }
 });
 
-app.get('/logout', async (req, res) => {
-  const user = await User.findOne({ id: req.body.id, password: req.body.password }, 'id id_type');
-  try {
-    res.send('done');
-  } catch (err) {
-    res.send({ message: err });
+function tokenCollector(query) {
+  const tokens = [];
+  for (let i = 0; i < query.length; i++){
+    tokens.push(query[i].access_token);
   }
-});
+  return tokens;
+}
 
-app.post('/logout', authFunction, async (req, res) => {
-  const token = req.headers.authorization.split(' ')[1];
+app.get('/logout', authFunction, async (req, res) => {
+  if (req.body.all === true) {
+    const query = await User.find({}, 'access_token');
+    const allTokens = tokenCollector(query);
+    const tokenKeys = allTokens.map((token) => `bl_${token}`);
 
-  const tokenKey = `bl_${token}`;
-  await redisClient.set(tokenKey, token);
-  redisClient.expireAt(tokenKey, 1666356125);
+    for (let i = 0; i < allTokens.length; i++){
+      redisClient.set(tokenKeys[i], allTokens[i]);
+      redisClient.expireAt(tokenKeys[i], '10m');
+    }
 
-  return res.status(200).send('Token invalidated');
+    try {
+      res.status(200).send('All tokens invalidated');
+    } catch (err) {
+      res.send({ message: err });
+    }
+  } else if (req.body.all === false) {
+    const currentToken = req.headers.authorization.split(' ')[1];
+    const tokenKey = `bl_${currentToken}`;
+
+    try {
+      await redisClient.set(tokenKey, currentToken);
+      redisClient.expireAt(tokenKey, '10m');
+      res.status(200).send('Token invalidated');
+    } catch (err) {
+      res.send({ message: err });
+    }
+  }
 });
