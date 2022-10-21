@@ -14,6 +14,11 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+  access_token: {
+    type: String,
+    unique: true,
+    required: true,
+  },
 });
 
 module.exports = mongoose.model('users', userSchema);
