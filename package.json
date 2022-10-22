@@ -4,7 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon app.js"
+    "start": "nodemon app.js",
+    "eslint": "eslint app.js"
+  },
+  "husky":{
+    "hooks":{
+      "pre-commit": "npm run eslint"
+    }
   },
   "author": "",
   "license": "ISC",
@@ -26,6 +32,7 @@
     "redis": "^4.3.1"
   },
   "devDependencies": {
+    "husky": "^8.0.1",
     "nodemon": "^2.0.20"
   }
 }
