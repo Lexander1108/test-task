@@ -109,8 +109,9 @@ async function authFunction(req, res, next) {
   jwt.verify(token, process.env.ACCESS_TOKEN, (err, user) => {
     if (err) res.sendStatus(403);
     req.user = user;
-    next();
   });
+
+  next();
 }
 
 app.post('/signin', authFunction, async (req, res) => {
@@ -135,11 +136,7 @@ app.get('/latency', async (req, res) => {
 });
 
 function tokenCollector(query) {
-  const tokens = [];
-  for (let i = 0; i < query.length; i++){
-    tokens.push(query[i].access_token);
-  }
-  return tokens;
+  return query.map((item) => item.access_token);
 }
 
 app.get('/logout', authFunction, async (req, res) => {
@@ -148,7 +145,7 @@ app.get('/logout', authFunction, async (req, res) => {
     const allTokens = tokenCollector(query);
     const tokenKeys = allTokens.map((token) => `bl_${token}`);
 
-    for (let i = 0; i < allTokens.length; i++){
+    for (let i = 0; i < allTokens.length; i++) {
       redisClient.set(tokenKeys[i], allTokens[i]);
       redisClient.expireAt(tokenKeys[i], '10m');
     }
