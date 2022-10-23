@@ -112,6 +112,8 @@ async function authFunction(req, res, next) {
   });
 
   next();
+
+  return null;
 }
 
 app.post('/signin', authFunction, async (req, res) => {
@@ -145,7 +147,7 @@ app.get('/logout', authFunction, async (req, res) => {
     const allTokens = tokenCollector(query);
     const tokenKeys = allTokens.map((token) => `bl_${token}`);
 
-    for (let i = 0; i < allTokens.length; i++) {
+    for (let i = 0; i < allTokens.length; i + i) {
       redisClient.set(tokenKeys[i], allTokens[i]);
       redisClient.expireAt(tokenKeys[i], '10m');
     }
