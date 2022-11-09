@@ -8,8 +8,8 @@
     "eslint": "eslint app.js",
     "eslint:fix": "eslint app.js --fix"
   },
-  "husky":{
-    "hooks":{
+  "husky": {
+    "hooks": {
       "pre-commit": "npm run eslint"
     }
   },
@@ -30,7 +30,7 @@
     "mongoose": "^6.6.4",
     "node-fetch": "^2.6.7",
     "prettier": "^2.7.1",
-    "redis": "^4.3.1"
+    "redis": "^4.4.0"
   },
   "devDependencies": {
     "husky": "^8.0.1",
