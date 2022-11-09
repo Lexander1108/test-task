@@ -1,27 +1,12 @@
 const express = require('express');
 const fetch = require('node-fetch');
-const redis = require('redis');
 
 const User = require('../models/user-model');
 const { authFunction } = require('../middlewares/authentication');
 const { idTypeSelector, generateToken, tokenCollector } = require('../utils/index');
+const { redisClient } = require('../services/redis-service');
 
 const router = express.Router();
-
-let redisClient = null;
-
-(async () => {
-  redisClient = redis.createClient();
-
-  redisClient.on('error', (error) => {
-    console.log(error);
-  });
-  redisClient.on('connect', () => {
-    console.log('Redis connected');
-  });
-
-  await redisClient.connect();
-})();
 
 router.post('/signup', async (req, res) => {
   const user = new User({
@@ -72,6 +57,8 @@ router.get('/info', async (req, res) => {
 });
 
 router.get('/logout', authFunction, async (req, res) => {
+  await redisClient.init();
+
   if (req.body.all === true) {
     const query = await User.find({}, 'access_token');
     const allTokens = tokenCollector(query);

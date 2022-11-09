@@ -1,22 +1,10 @@
 const jwt = require('jsonwebtoken');
-const redis = require('redis');
 
-let redisClient = null;
-
-(async () => {
-  redisClient = redis.createClient();
-
-  redisClient.on('error', (error) => {
-    console.log(error);
-  });
-  redisClient.on('connect', () => {
-    console.log('Redis connected');
-  });
-
-  await redisClient.connect();
-})();
+const { redisClient } = require('../services/redis-service');
 
 async function authFunction(req, res, next) {
+  await redisClient.init();
+
   const token = req.headers.authorization.split(' ')[1];
   if (token == null) {
     return res.status(401).send({
@@ -24,7 +12,7 @@ async function authFunction(req, res, next) {
     });
   }
 
-  const inDenyList = await redisClient.getRedisAsync(`bl_${token}`);
+  const inDenyList = await redisClient.get(`bl_${token}`);
   if (inDenyList) {
     return res.status(401).send({
       message: 'Token Rejected',
