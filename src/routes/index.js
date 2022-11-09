@@ -8,6 +8,10 @@ const { redisClient } = require('../services/redis-service');
 
 const router = express.Router();
 
+(async () => {
+  await redisClient.init();
+})();
+
 router.post('/signup', async (req, res) => {
   const user = new User({
     id: req.body.id,
@@ -28,7 +32,6 @@ router.post('/signup', async (req, res) => {
 
 router.post('/signin', authFunction, async (req, res) => {
   const user = await User.findOne({ id: req.body.id, password: req.body.password }, 'id id_type');
-  res.send(user);
   try {
     res.send(user);
   } catch (err) {
@@ -57,8 +60,6 @@ router.get('/info', async (req, res) => {
 });
 
 router.get('/logout', authFunction, async (req, res) => {
-  await redisClient.init();
-
   if (req.body.all === true) {
     const query = await User.find({}, 'access_token');
     const allTokens = tokenCollector(query);
