@@ -81,7 +81,9 @@ async function latency(req, res){
   };
   const start = Date.now();
   try {
-    await fetch(url, options).then(res.json(Date.now() - start));
+    await fetch(url, options);
+    const end = Date.now();
+    res.send({ latency: end - start });
   } catch (err) {
     res.send({ message: err });
   }
