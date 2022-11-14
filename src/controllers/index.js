@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 const User = require('../models/user-model');
 const { idTypeSelector, generateToken, tokenCollector } = require('../utils/index');
 const { redisClient } = require('../services/redis-service');
@@ -72,9 +74,23 @@ async function logoutUser(req, res) {
   }
 }
 
+async function latency(req, res){
+  const url = 'https://google.com/';
+  const options = {
+    "method": "GET",
+  };
+  const start = Date.now();
+  try {
+    await fetch(url, options).then(res.json(Date.now() - start));
+  } catch (err) {
+    res.send({ message: err });
+  }
+}
+
 module.exports = {
   createUser,
   loginUser,
   findUsers,
   logoutUser,
+  latency,
 };
