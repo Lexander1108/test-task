@@ -1,8 +1,7 @@
 const express = require('express');
-const fetch = require('node-fetch');
 
 const { authFunction } = require('../middlewares/authentication');
-const { createUser, loginUser, findUsers, logoutUser } = require('../controllers/index');
+const { createUser, loginUser, findUsers, logoutUser, latency } = require('../controllers/index');
 
 const router = express.Router();
 
@@ -23,14 +22,7 @@ router.get('/logout', authFunction, (req, res) => {
 });
 
 router.get('/latency', async (req, res) => {
-  const start = Date.now();
-  try {
-    await fetch('https://google.com/');
-    const end = Date.now();
-    res.json({ latency: end - start });
-  } catch (err) {
-    res.send({ message: err });
-  }
+  latency(req, res);
 });
 
 module.exports = router;
