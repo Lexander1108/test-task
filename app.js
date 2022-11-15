@@ -3,7 +3,10 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const routes = require('./src/routes/index');
+const authRouter = require('./src/routes/auth');
+const latencyRouter = require('./src/routes/latency');
+const findUsersRouter = require('./src/routes/findUsers');
+const { redisClient } = require('./src/services/redis-service');
 
 require('dotenv').config();
 
@@ -12,10 +15,16 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-app.use('/', routes);
+app.use('/auth', authRouter);
+app.use('/latency', latencyRouter);
+app.use('/users', findUsersRouter);
 
 const port = process.env.PORT;
 const connectionString = process.env.DB_CONNECTION_STRING;
+
+(async () => {
+  await redisClient.init();
+})();
 
 async function mongodbConnect() {
   try {
