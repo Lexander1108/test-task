@@ -3,10 +3,10 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
-const authRouter = require('./src/routes/auth');
-const latencyRouter = require('./src/routes/latency');
-const findUsersRouter = require('./src/routes/findUsers');
-const { redisClient } = require('./src/services/redis-service');
+const authRouter = require('./src/routes/auth.router');
+const latencyRouter = require('./src/routes/latency.router');
+const findUsersRouter = require('./src/routes/users.router');
+const { redisClient } = require('./src/services/redis.service');
 
 require('dotenv').config();
 
@@ -38,6 +38,6 @@ async function mongodbConnect() {
   }
 }
 
-mongodbConnect();
+// mongodbConnect();
 
 app.listen(port, () => console.log(`Listening on Port: ${port}`));
