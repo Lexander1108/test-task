@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const { redisClient } = require('../services/redis-service');
+const { redisClient } = require('../services/redis.service');
 
 async function authFunction(req, res, next) {
   await redisClient.init();
