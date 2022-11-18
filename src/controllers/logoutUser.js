@@ -1,33 +1,6 @@
 const User = require('../models/user-model');
-const { idTypeSelector, generateToken, tokenCollector } = require('../utils/index');
-const { redisClient } = require('./redis.service');
-
-async function createUser(req, res) {
-  const user = new User({
-    id: req.body.id,
-    password: req.body.password,
-    id_type: idTypeSelector(req.body.id),
-  });
-
-  const accesstoken = generateToken(user);
-  user.access_token = accesstoken;
-
-  try {
-    await user.save();
-    res.json({ accesstoken });
-  } catch (err) {
-    res.send({ message: err });
-  }
-}
-
-async function loginUser(req, res) {
-  const user = await User.findOne({ id: req.body.id, password: req.body.password }, 'id id_type');
-  try {
-    res.send(user);
-  } catch (err) {
-    res.send({ message: err });
-  }
-}
+const { tokenCollector } = require('../utils/index');
+const { redisClient } = require('../services/redis.service');
 
 async function logoutUser(req, res) {
   if (req.body.all === true) {
@@ -59,8 +32,4 @@ async function logoutUser(req, res) {
   }
 }
 
-module.exports = {
-  createUser,
-  loginUser,
-  logoutUser,
-};
+module.exports = { logoutUser };
