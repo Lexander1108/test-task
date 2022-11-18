@@ -38,6 +38,6 @@ async function mongodbConnect() {
   }
 }
 
-// mongodbConnect();
+mongodbConnect();
 
 app.listen(port, () => console.log(`Listening on Port: ${port}`));
