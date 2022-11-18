@@ -3,7 +3,7 @@ const express = require('express');
 const authRouter = express.Router();
 
 const { authFunction } = require('../middlewares/authentication');
-const { loginUser, logoutUser, createUser } = require('../services/users.service');
+const { loginUser, logoutUser, createUser } = require('../controllers/index');
 
 authRouter.get('/logout', authFunction, (req, res) => {
   logoutUser(req, res);
